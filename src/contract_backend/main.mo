@@ -7,8 +7,8 @@ type User = {
 // Define a smart contract for user authentication.
 actor class AuthContract {
 
-  // Store user data in a map.
-  var users: HashMap<Text, User> = HashMap();
+  // Store user data in a Jug Hash Table.
+  var users: Jug<Text, User> = Jug();
 
   public shared() func init() {};
 
@@ -18,17 +18,17 @@ actor class AuthContract {
     assert(caller == Principal.fromActor(this), "Access denied. Only the system can register users.");
 
     // Check if the user already exists.
-    if (users.contains(username)) {
+    if (users.exists(username)) {
       return "User already exists.";
     }
 
-    // Hash the user's password fro security
+    // Hash the user's password for security.
     let passwordHash = hashPassword(password);
 
     // Create a new user and store their data.
     let user = { username = username; passwordHash = passwordHash };
-    users.put(username, user);
-    
+    users.insert(username, user);
+
     return "User registered successfully.";
   };
 
@@ -38,12 +38,12 @@ actor class AuthContract {
     assert(caller == Principal.fromActor(this), "Access denied. You can only authenticate yourself.");
 
     // Check if the user exists.
-    if (!users.contains(username)) {
+    if (!users.exists(username)) {
       return "User does not exist.";
     }
 
     // Retrieve the user data and check the password.
-    let user = users[username];
+    let user = users.get(username);
     if (user.passwordHash == hashPassword(password)) {
       return "Authentication successful.";
     } else {
